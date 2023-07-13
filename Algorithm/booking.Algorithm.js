@@ -1,5 +1,6 @@
 let SeatModel = require('../model/Seats.model');
 let client = require('../Redis/redis.config');
+const SeatBooking = require('./SlidingWindow');
 async function BookingSeats(num) {
   let { matrix, data } = await generate2DMatrix();
   let firstIndex = -1;
@@ -62,32 +63,36 @@ async function BookingSeats(num) {
   }
   if (!SeatsAdded) {
     console.log('No Seat got booked', num);
-    let emptyRow = [];
-    for (let i = 0; i < matrix.length; i++) {
-      for (let j = 0; j < matrix[i].length; j++) {
-        if (matrix[i][j].isBooked === false && emptyRow.length != num) {
-          matrix[i][j].isBooked = true;
-          emptyRow.push(matrix[i][j]);
-        }
-      }
+    // let emptyRow = [];
+    // for (let i = 0; i < matrix.length; i++) {
+    //   for (let j = 0; j < matrix[i].length; j++) {
+    //     if (matrix[i][j].isBooked === false && emptyRow.length != num) {
+    //       matrix[i][j].isBooked = true;
+    //       emptyRow.push(matrix[i][j]);
+    //     }
+    //   }
+    // }
+    // console.log(emptyRow.length);
+    // let WereItemsAddedflag = false;
+    // if (emptyRow.length !== 0) {
+    //   for (let l = 0; l < emptyRow.length; l++) {
+    //     await SeatModel.findByIdAndUpdate(
+    //       { _id: emptyRow[l]._id },
+    //       { ...emptyRow[l] },
+    //       { new: true }
+    //     );
+    //   }
+    //   WereItemsAddedflag = true;
+    // }
+    // if (WereItemsAddedflag) {
+    //   await client.set('latest', JSON.stringify(emptyRow));
+    //   return emptyRow;
+    // }
+    let x = await SeatBooking(num);
+    if (x) {
+      return true;
     }
-    console.log(emptyRow.length);
-    let WereItemsAddedflag = false;
-    if (emptyRow.length !== 0) {
-      for (let l = 0; l < emptyRow.length; l++) {
-        await SeatModel.findByIdAndUpdate(
-          { _id: emptyRow[l]._id },
-          { ...emptyRow[l] },
-          { new: true }
-        );
-      }
-      WereItemsAddedflag = true;
-    }
-    if (WereItemsAddedflag) {
-      await client.set('latest', JSON.stringify(emptyRow));
-      return emptyRow;
-    }
-    return [];
+    return false;
   }
 }
 async function generate2DMatrix() {
@@ -166,6 +171,7 @@ async function generate2DMatrix() {
       row10,
       [...row11, ...row12],
     ];
+
     return { matrix: matrix, data: data };
   } catch (er) {
     return er.message;

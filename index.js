@@ -4,14 +4,17 @@ const app = express();
 const cors = require('cors');
 const connect = require('./config/db.config');
 const PORT = process.env.PORT || 8080;
-const SeatsRouter = require('./routes/Seats.routers');
 
+//router
+const SeatsRouter = require('./routes/Seats.routers');
+const UnBookRouter = require('./routes/Unbook.Seats');
 //middlewares
 app.use(express.json());
 app.use(cors());
 
 // routes
 app.use('/book-seats', SeatsRouter);
+app.use('/ubn-book-seats', UnBookRouter);
 app.get('/', (req, res) => {
   return res.status(200).send({ message: 'Welcome' });
 });

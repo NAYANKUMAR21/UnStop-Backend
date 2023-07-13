@@ -1,4 +1,5 @@
 const BookingSeats = require('../Algorithm/booking.Algorithm');
+const SeatBooking = require('../Algorithm/SlidingWindow');
 const SeatModel = require('../model/Seats.model');
 let client = require('../Redis/redis.config');
 const SeatsToBeBooked = async (req, res) => {
@@ -11,14 +12,9 @@ const SeatsToBeBooked = async (req, res) => {
     return res.status(404).send({ message: 'Enter Number Below 7' });
   }
   try {
-    let checkIfAvialable = await SeatModel.find({ isBooked: { $in: 'false' } });
-    if (checkIfAvialable.length >= numOfSeats) {
-      let x = await BookingSeats(numOfSeats);
-      if (x.length !== 0) {
-        return res
-          .status(200)
-          .send({ message: 'Seats Booked', bookedSeats: x });
-      }
+    let x = await BookingSeats(numOfSeats);
+    if (x) {
+      return res.status(200).send({ message: 'Seats Booked', bookedSeats: x });
     }
 
     return res.status(404).send('Seats Not Avialable');
