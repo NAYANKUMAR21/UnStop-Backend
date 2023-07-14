@@ -4,49 +4,25 @@ const SeatModel = require('../model/Seats.model');
 async function SeatBooking(num) {
   try {
     const getSeats = await SeatModel.find({ isBooked: { $in: false } });
+
     console.log(getSeats.length);
-    for (let i = 0; i < getSeats.length; i++) {
+
+    for (let i = 0; i < getSeats.length - num + 1; i++) {
       let arr = [];
       for (let j = i; j < i + num; j++) {
         arr.push(getSeats[j]);
       }
 
       let check = checkIfAllAreSameRow(arr, 1);
-      let x = await UpdateDB(check, arr);
-      if (check && x) {
+      if (check) {
+        await UpdateDB(true, arr);
         return true;
       }
-
-      let row2 = checkIfAllAreSameRow(arr, 2);
-      x = await UpdateDB(row2, arr);
-      if (row2 && x) {
-        return true;
-      }
-      let row3 = checkIfAllAreSameRow(arr, 3);
-      x = await UpdateDB(row3, arr);
-      if (row3 && x) {
-        return true;
-      }
-      let row4 = checkIfAllAreSameRow(arr, 4);
-      x = await UpdateDB(row4, arr);
-      if (row4 && x) {
-        return true;
-      }
-      let row5 = checkIfAllAreSameRow(arr, 5);
-      x = await UpdateDB(row5, arr);
-      if (row5 && x) {
-        return true;
-      }
-      let row6 = checkIfAllAreSameRow(arr, 6);
-      x = await UpdateDB(row6, arr);
-      if (row6 && x) {
-        return true;
-      }
-      let row7 = checkIfAllAreSameRow(arr, 7);
-      x = await UpdateDB(row7, arr);
-      if (row7 && x) {
-        return true;
-      }
+    }
+    console.log('Here is pointer ');
+    let checkAvialability = await AddP2Seats(getSeats, num);
+    if (checkAvialability) {
+      return true;
     }
     return false;
   } catch (er) {
@@ -67,6 +43,7 @@ async function UpdateDB(check, arr) {
       await client.set('latest', JSON.stringify(arr));
       return true;
     }
+
     return false;
   } catch (er) {
     return false;
@@ -81,12 +58,74 @@ function checkIfAllAreSameRow(arr, rows) {
       obj[arr[i].row]++;
     }
   }
-  if (Object.keys(obj).length === rows) {
+  if (Object.keys(obj).length == rows) {
     return true;
   }
   return false;
 }
-function checkLastRow(data, num) {
-  for (let i = data.length - 1; i >= data.length - num; j--) {}
+async function AddP2Seats(getSeats, num) {
+  try {
+    console.log('this,Seat is not booked', 1);
+    //above everything is right
+    let obj = {};
+    for (let i = 0; i < getSeats.length; i++) {
+      if (obj[getSeats[i].row] == undefined) {
+        obj[getSeats[i].row] = [getSeats[i]._id];
+      } else {
+        obj[getSeats[i].row].push(getSeats[i]._id);
+      }
+    }
+    console.log('this,Seat is not booked', 2);
+    let min = Infinity;
+    let RowsAvialable = 0;
+    let sum = 0;
+    let final = [];
+    let SeatsAvialable = [];
+    for (let key in obj) {
+      sum += obj[key].length;
+      RowsAvialable = RowsAvialable + 1;
+      final.push(...obj[key]);
+      console.log('this,Seat is not booked', 3, final);
+
+      if (sum >= num) {
+        if (RowsAvialable < min) {
+          min = RowsAvialable;
+          SeatsAvialable = [];
+          SeatsAvialable.push(...final);
+        }
+        final = [];
+        sum = 0;
+        RowsAvialable = 0;
+      }
+    }
+    console.log('this,Seat is not booked', 4);
+
+    if (SeatsAvialable.length >= min) {
+      console.log('this,Seat is not booked', 5);
+      let result = [];
+      let count = 0;
+      for (let i = 0; i < SeatsAvialable.length; i++) {
+        if (count < num) {
+          let x = getSeats?.filter((item, index) => {
+            if (item._id === SeatsAvialable[i]) {
+              count++;
+              return item;
+            }
+          });
+          result.push(...x);
+        }
+      }
+      console.log('this,Seat is not booked', 6);
+      await UpdateDB(true, result);
+      return true;
+    }
+    console.log('this,Seat is not booked', 7);
+    return false;
+  } catch (er) {
+    console.log(er.message);
+    return false;
+  }
 }
 module.exports = SeatBooking;
+/*
+ */

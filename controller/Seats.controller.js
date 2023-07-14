@@ -6,18 +6,18 @@ const SeatsToBeBooked = async (req, res) => {
   const { num } = req.params;
   let numOfSeats = Number(num);
 
-  console.log(typeof numOfSeats);
-
-  if (numOfSeats > 7) {
-    return res.status(404).send({ message: 'Enter Number Below 7' });
+  if (1 <= numOfSeats && numOfSeats > 7) {
+    return res.status(404).send({ message: 'Enter Number between 1 and 7' });
   }
   try {
-    let x = await BookingSeats(numOfSeats);
+    console.log('Seats to be booked', numOfSeats);
+    let x = await SeatBooking(numOfSeats);
+
     if (x) {
       return res.status(200).send({ message: 'Seats Booked', bookedSeats: x });
     }
 
-    return res.status(404).send('Seats Not Avialable');
+    return res.status(400).send('Seats Not Avialable');
   } catch (er) {
     return res.status(404).send({ message: er.message });
   }
