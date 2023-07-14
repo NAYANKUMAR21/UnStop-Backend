@@ -20,7 +20,8 @@ async function SeatBooking(num) {
       }
     }
     console.log('Here is pointer ');
-    let checkAvialability = await AddP2Seats(getSeats, num);
+    let checkAvialability = await SubSlidingWindow(getSeats, num);
+    //  await AddP2Seats(getSeats, num);
     if (checkAvialability) {
       return true;
     }
@@ -120,6 +121,36 @@ async function AddP2Seats(getSeats, num) {
       return true;
     }
     console.log('this,Seat is not booked', 7);
+    return false;
+  } catch (er) {
+    console.log(er.message);
+    return false;
+  }
+}
+async function SubSlidingWindow(getSeats, num) {
+  try {
+    // console.log(getSeats);
+    let min = Infinity;
+    let arr = [];
+    let final = [];
+    for (let i = 0; i <= getSeats.length - num; i++) {
+      arr = [];
+      for (let j = i; j < i + num; j++) {
+        arr.push(getSeats[j]);
+      }
+      // console.log(arr);
+      let x = Math.abs(arr[0].Seat_Number - arr[arr.length - 1].Seat_Number);
+      if (x < min) {
+        min = x;
+        final = [];
+        final.push(...arr);
+      }
+      // console.log('------------------------------');
+    }
+    if (min !== Infinity) {
+      await UpdateDB(true, final);
+      return true;
+    }
     return false;
   } catch (er) {
     console.log(er.message);
