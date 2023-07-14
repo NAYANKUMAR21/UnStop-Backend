@@ -158,5 +158,3 @@ async function SubSlidingWindow(getSeats, num) {
   }
 }
 module.exports = SeatBooking;
-/*
- */
