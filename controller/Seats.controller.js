@@ -40,9 +40,9 @@ const GetAllSeats = async (req, res) => {
     let x = await client.get('latest');
     x = JSON.parse(x);
 
-    const getAllSeats = await SeatModel.find();
+    const getAllSeats = await SeatModel.find({}).sort({ Seat_Number: 1 });
     //link - https://stackblitz.com/edit/angular-6l4btw
-    if (x) {
+    if (x.length !== 0) {
       return res.status(200).send({ getAllSeats, x });
     }
     return res.status(200).send({ getAllSeats });

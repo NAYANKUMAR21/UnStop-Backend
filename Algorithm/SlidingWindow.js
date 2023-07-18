@@ -3,7 +3,9 @@ const SeatModel = require('../model/Seats.model');
 
 async function SeatBooking(num) {
   try {
-    const getSeats = await SeatModel.find({ isBooked: { $in: false } });
+    const getSeats = await SeatModel.find({ isBooked: { $in: false } }).sort(
+      'Seat_Number'
+    );
 
     console.log(getSeats.length);
 

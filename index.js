@@ -15,6 +15,7 @@ app.use(cors());
 // routes
 app.use('/book-seats', SeatsRouter);
 app.use('/ubn-book-seats', UnBookRouter);
+
 app.get('/', (req, res) => {
   return res.status(200).send({ message: 'Welcome' });
 });
